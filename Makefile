@@ -47,6 +47,13 @@ arm64:
 	gobjcopy -O binary -j .text bin/t8010_t8011_disable_wxn_arm64.o bin/t8010_t8011_disable_wxn_arm64.bin
 	rm bin/t8010_t8011_disable_wxn_arm64.o
 
-	xcrun -sdk iphoneos clang src/t8015_shellcode_arm64.S -target arm64-apple-darwin -Wall -o bin/t8015_shellcode_arm64.o
-	gobjcopy -O binary -j .text bin/t8015_shellcode_arm64.o bin/t8015_shellcode_arm64.bin
+	# xcrun -sdk iphoneos clang src/t8015_shellcode_arm64.S -target arm64-apple-darwin -Wall -o bin/t8015_shellcode_arm64.o
+	# gobjcopy -O binary -j .text bin/t8015_shellcode_arm64.o bin/t8015_shellcode_arm64.bin
+	# rm bin/t8015_shellcode_arm64.o
+
+	xcrun -sdk iphoneos clang src/t8015_shellcode_arm64.c -arch arm64 -Wl,-preload -Wl,-image_base,0x180018000 -fno-inline -Os -Wall -e _main -ffreestanding -fno-stack-protector -nostdlib -nostdlibinc -fno-builtin -Wno-incompatible-library-redeclaration -o bin/t8015_shellcode_arm64.o
+	gobjcopy -O binary -j .text -j .cstring bin/t8015_shellcode_arm64.o bin/t8015_shellcode_arm64.bin1
 	rm bin/t8015_shellcode_arm64.o
+	dd if=bin/t8015_shellcode_arm64.bin1 of=bin/t8015_shellcode_arm64.bin bs=1 skip=1568
+	rm bin/t8015_shellcode_arm64.bin1
+	# hack for short bootargs # gsed -i 's/ a/\x00\x00/g' bin/t8015_shellcode_arm64.bin
