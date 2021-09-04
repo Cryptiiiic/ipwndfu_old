@@ -64,6 +64,7 @@ def apply_patches(binary, patches):
     return binary
 
 def libusb1_path_internal():
+    return '/opt/procursus/lib/libusb-1.0.0.dylib'
     version = platform.mac_ver()[0]
     # HACK to support macOS 10.15
     if version == '10.15':

