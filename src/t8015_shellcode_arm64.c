@@ -11,7 +11,6 @@ int main(void);
 int flash_nand_init(uint32_t boot_arg);
 int nand_prep();
 //void *lookup_blockdev(const char *name);
-char *platform_blockdev_name;
 #define platform_get_boot_device_t          0x10000796c
 #define platform_enable_boot_interface_t    0x100007a10
 #define flash_nand_init_t                   0x100003a84
@@ -88,7 +87,7 @@ int flash_nand_init(uint32_t boot_arg) {
     int (*nand_read_block_hook)(struct spi_nanddev *, uint8_t *, uint32_t, uint32_t) = nand_read_block_hook_t;
     int (*register_blockdev)((struct blockdev *)) = register_blockdev_t;
     //
-
+    char *platform_blockdev_name = spi_nand0_t;
     struct spi_nanddev *dev = NULL;
     int result = -1;
     uint32_t var1;
@@ -138,7 +137,7 @@ int nand_prep() {
     int boot_device = 0;
     uint32_t boot_flag = 0;
     uint32_t boot_arg = 0;
-    platform_blockdev_name = (char*)spi_nand0_t;
+    const char *platform_blockdev_name = (const char*)spi_nand0_t;
     bool (*platform_get_boot_device)(int32_t index, int *boot_device, uint32_t *boot_flag, uint32_t *boot_arg) = platform_get_boot_device_t;
     bool rv = (*platform_get_boot_device)(0, &boot_device, &boot_flag, &boot_arg);
     if(!rv) {
