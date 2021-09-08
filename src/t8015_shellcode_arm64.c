@@ -27,7 +27,11 @@ int nand_prep();
 #define construct_blockdev_t                0x10000c7fc
 #define nand_read_block_hook_t              0x100003e44
 #define register_blockdev_t                 0x10000c690
+#define image_find_t                        0x100006458
+#define image_search_bdev_t                 0x10000c060
+#define panic_t                             0x100008d28
 #define spi_nand0_t                         0x100017246
+#define IMAGE_OPTION_LOCAL_STORAGE          4
 //STRUCTS
 struct blockdev {
     struct blockdev *next;
@@ -67,90 +71,120 @@ struct spi_nanddev {
     uint32_t defaultTimeout;
     uint32_t some_field7;
 };
+
+struct image_info {
+    uint32_t imageLength;
+    uint32_t imageAllocation;
+    uint32_t imageType;
+    uint32_t imagePrivateMagic;
+    uint32_t imageOptions;
+    void *imagePrivate;
+};
+
 //MACROS
 //FUNCTIONS
 int main(void) {
     return nand_prep();
 }
 
-int flash_nand_init(uint32_t boot_arg) {
-    //func ptr init
-    int (*flash_nand_init_gpio)() = flash_nand_init_gpio_t;
-    void *(*calloc)(size_t a1, size_t a2) = calloc_t;
-    void (*free)(void *a1) = free_t;
-//    size_t (*strlen)(char const *s) = strlen_t;
-//    size_t (*malloc)(size_t size) = malloc_t;
-    uint32_t (*platform_get_spi_frequency)() = platform_get_spi_frequency_t;
-    int (*flash_spi_read_wrapper_unknown)(struct spi_nanddev *dev, uint32_t *a2, uint32_t *a3) = flash_spi_read_wrapper_unknown_t;
-    int (*nand_readRange)(struct spi_nanddev *, uint8_t *, uint32_t, uint32_t) = nand_readRange_t;
-    int (*construct_blockdev)(struct blockdev *, char *, uint64_t, uint32_t) = construct_blockdev_t;
-    int (*nand_read_block_hook)(struct spi_nanddev *, uint8_t *, uint32_t, uint32_t) = nand_read_block_hook_t;
-    int (*register_blockdev)((struct blockdev *)) = register_blockdev_t;
-    //
-    char *platform_blockdev_name = spi_nand0_t;
-    struct spi_nanddev *dev = NULL;
-    int result = -1;
-    uint32_t var1;
-    uint32_t var2;
-    unsigned int var3;
-    dev = (struct spi_nanddev *)(*calloc)(1, 0xa8);
-    if (boot_arg == 0 && dev != NULL) {
-        dev->spiBus = 0;
-        dev->spiFrequency = (*platform_get_spi_frequency)();
-        dev->spiMode = 1;
-        dev->defaultTimeout = 1000000;
-        result = (*flash_nand_init_gpio)();
-        if (result > -1) {
-            var1 = 0;
-            result = (*flash_spi_read_wrapper_unknown)(dev, &var1, &var2);
-            if (result == 0) {
-                dev->some_field5 = var2;
-                var1 = 1;
-                result = (*flash_spi_read_wrapper_unknown)(dev,&var1,&var2);
-                if (result == 0) {
-                    dev->blockSize = 0x1000;
-                    dev->blockCount = var2;
-                    dev->flags = 0;
-                    (dev->sdev).handle = (uint64_t)dev;
-                    (dev->sdev).readRange = (*nand_readRange);
-                    if (platform_blockdev_name != NULL) {
-                        (*construct_blockdev)((struct blockdev *)dev, platform_blockdev_name, (var2 << 0xc), 0x1000);
-                        (dev->sdev).bdev.read_block_hook = (*nand_read_block_hook);
-                        (*register_blockdev)((struct blockdev *)dev);
-                        var3 = 0;
-                        goto exit;
-                    }
-                }
-            }
-        }
-    }
-    if (dev) {
-        (*free)(dev);
-    }
-    var3 = 0xffffffff;
+//int flash_nand_init(uint32_t boot_arg) {
+//    //func ptr init
+//    int (*flash_nand_init_gpio)() = flash_nand_init_gpio_t;
+//    void *(*calloc)(size_t a1, size_t a2) = calloc_t;
+//    void (*free)(void *a1) = free_t;
+////    size_t (*strlen)(char const *s) = strlen_t;
+////    size_t (*malloc)(size_t size) = malloc_t;
+//    uint32_t (*platform_get_spi_frequency)() = platform_get_spi_frequency_t;
+//    int (*flash_spi_read_wrapper_unknown)(struct spi_nanddev *dev, uint32_t *a2, uint32_t *a3) = flash_spi_read_wrapper_unknown_t;
+//    int (*nand_readRange)(struct spi_nanddev *, uint8_t *, uint32_t, uint32_t) = nand_readRange_t;
+//    int (*construct_blockdev)(struct blockdev *, char *, uint64_t, uint32_t) = construct_blockdev_t;
+//    int (*nand_read_block_hook)(struct spi_nanddev *, uint8_t *, uint32_t, uint32_t) = nand_read_block_hook_t;
+//    int (*register_blockdev)((struct blockdev *)) = register_blockdev_t;
+//    //
+//    char *platform_blockdev_name = spi_nand0_t;
+//    struct spi_nanddev *dev = NULL;
+//    int result = -1;
+//    uint32_t var1;
+//    uint32_t var2;
+//    unsigned int var3;
+//    dev = (struct spi_nanddev *)(*calloc)(1, 0xa8);
+//    if (boot_arg == 0 && dev != NULL) {
+//        dev->spiBus = 0;
+//        dev->spiFrequency = (*platform_get_spi_frequency)();
+//        dev->spiMode = 1;
+//        dev->defaultTimeout = 1000000;
+//        result = (*flash_nand_init_gpio)();
+//        if (result > -1) {
+//            var1 = 0;
+//            result = (*flash_spi_read_wrapper_unknown)(dev, &var1, &var2);
+//            if (result == 0) {
+//                dev->some_field5 = var2;
+//                var1 = 1;
+//                result = (*flash_spi_read_wrapper_unknown)(dev,&var1,&var2);
+//                if (result == 0) {
+//                    dev->blockSize = 0x1000;
+//                    dev->blockCount = var2;
+//                    dev->flags = 0;
+//                    (dev->sdev).handle = (uint64_t)dev;
+//                    (dev->sdev).readRange = (*nand_readRange);
+//                    if (platform_blockdev_name != NULL) {
+//                        (*construct_blockdev)((struct blockdev *)dev, platform_blockdev_name, (var2 << 0xc), 0x1000);
+//                        (dev->sdev).bdev.read_block_hook = (*nand_read_block_hook);
+//                        (*register_blockdev)((struct blockdev *)dev);
+//                        var3 = 0;
+//                        goto exit;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    if (dev) {
+//        (*free)(dev);
+//    }
+//    var3 = 0xffffffff;
+//
+//exit:
+//    return var3 & var3 >> 0x1f;
+//}
 
-exit:
-    return var3 & var3 >> 0x1f;
-}
+//struct image_info *lookup_image_in_bdev(const char *name, uint32_t type) {
+//    struct blockdev *(*lookup_blockdev)(const char *name) = lookup_blockdev_t;
+//    int (*image_search_bdev)(struct blockdev *bdev, uint64_t map_offset, uint32_t imageOptions) = image_search_bdev_t;
+//    struct image_info *(*image_find)(uint32_t type) = image_find_t;
+//    struct blockdev *boot_bdev;
+//    struct image_info *loaded_image;
+//
+//    if ((boot_bdev = (*lookup_blockdev)(name)) == NULL)
+//        return NULL;
+//
+//    if ((*image_search_bdev)(boot_bdev, 0, IMAGE_OPTION_LOCAL_STORAGE) == 0)
+//        return NULL;
+//
+//    loaded_image = (*image_find)(type);
+//
+//    return loaded_image;
+//}
 
 int nand_prep() {
+    bool (*platform_get_boot_device)(int32_t index, int *boot_device, uint32_t *boot_flag, uint32_t *boot_arg) = platform_get_boot_device_t;
+    void (*platform_enable_boot_interface)(bool enable, int boot_device, uint32_t boot_arg) = platform_enable_boot_interface_t;
+    int (*flash_nand_init)(uint32_t boot_arg) = flash_nand_init_t;
+    struct image_info *(*lookup_image_in_bdev)(const char *name, uint32_t type) = lookup_image_in_bdev_t;
+    void (*panic)() = panic_t;
     int boot_device = 0;
     uint32_t boot_flag = 0;
     uint32_t boot_arg = 0;
     const char *platform_blockdev_name = (const char*)spi_nand0_t;
-    bool (*platform_get_boot_device)(int32_t index, int *boot_device, uint32_t *boot_flag, uint32_t *boot_arg) = platform_get_boot_device_t;
     bool rv = (*platform_get_boot_device)(0, &boot_device, &boot_flag, &boot_arg);
     if(!rv) {
-        return -1;
+        (*panic)();
     }
-    void (*platform_enable_boot_interface)(bool enable, int boot_device, uint32_t boot_arg) = platform_enable_boot_interface_t;
     (*platform_enable_boot_interface)(true, boot_device, boot_arg);
-    flash_nand_init(boot_arg);
+    (*flash_nand_init)(boot_arg);
     uint32_t type = (uint32_t)"illb";
-    void *(*lookup_image_in_bdev)(const char *name, uint32_t type) = lookup_image_in_bdev_t;
-    void *rv2 = (*lookup_image_in_bdev)(platform_blockdev_name, type);
-    if(rv2 == 0) {
-        return -1;
+    struct image_info *image = (*lookup_image_in_bdev)(platform_blockdev_name, type);
+    if(image == 0) {
+        (*panic)();
     }
     return 0;
 }
