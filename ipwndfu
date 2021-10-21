@@ -407,6 +407,10 @@ if __name__ == '__main__':
         print 'Heap repaired.'
         device.write_memory(TRAMPOLINE + 0x400, open('bin/0x8015.bin').read())
         device.execute(0, 0x180018400)
+        time.sleep(0.5)
+        device = dfu.acquire_device()
+        dfu.request_image_validation(device)
+        dfu.release_device(device)
         print 'Bootrom Patched'
         print 'you can now load unsigned firmware'
         print 'and debug the next boot stages'

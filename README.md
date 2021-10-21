@@ -6,7 +6,7 @@
 
 ## About this fork
 
-# Made by Akayn
+# Made by Akayn, improved by Cryptiiiic
 - supports loading of unsigned images.<br>
 - supports debugging of images.<br>
 - supports T8015 A11 (iPhone X/iPhone 8/8+)<br>
