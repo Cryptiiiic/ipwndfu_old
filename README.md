@@ -1,9 +1,41 @@
 ![](repo/ipwndfu.png)
-# Open-source jailbreaking tool for many iOS devices
+# Open-source jailbreaking tool for many iOS devices 
 
 
 **Read [disclaimer](#disclaimer) before using this software.*
 
+## About this fork
+
+# Made by Akayn
+- supports loading of unsigned images.<br>
+- supports debugging of images.<br>
+- supports T8015 A11 (iPhone X/iPhone 8/8+)<br>
+
+## Please use at your own risk!
+
+## Usage
+***loading unsigned images***<br>
+```
+$ ./ipwndfu -p
+$ ./ipwndfu --patch
+Now issue an abort to the device, for  example:
+$ ./idevicerestore /folder_with_extracted_ipsw
+Now (assuming you replaced the ibss and the ibec under /firmware/dfu with a patched one):
+$ ./idevicerestore /folder_with_extracted_ipsw
+and it should restore and load..
+```
+***debugging images***<br>
+```
+$ ./ipwndfu -p
+$ ./ipwndfu --demote
+$ ./ipwndfu --patch
+Now issue an abort to the device, for  example:
+$ ./idevicerestore /folder_with_extracted_ipsw
+Now (it dont matter signed or not):
+$ ./idevicerestore /folder_with_extracted_ipsw
+you should see that ibss never finish.
+open the debugger and you'll see you already at the ibss..
+```
 
 ## checkm8
 
