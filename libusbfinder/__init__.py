@@ -64,6 +64,11 @@ def apply_patches(binary, patches):
     return binary
 
 def libusb1_path_internal():
+    if os.path.exists('/opt/procursus/lib/') and os.path.isfile('/opt/procursus/lib/' + DYLIB_NAME):
+        print('Using %s as our libusb' % ('/opt/procursus/lib/' + DYLIB_NAME))
+        return '/opt/procursus/lib/' + DYLIB_NAME
+    if os.path.exists('/usr/local/lib/') and os.path.isfile('/usr/local/lib/' + DYLIB_NAME):
+        return '/usr/local/lib/' + DYLIB_NAME
     version = platform.mac_ver()[0]
     # HACK to support macOS 10.15
     if version == '10.15':
